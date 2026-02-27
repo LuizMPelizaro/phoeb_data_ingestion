@@ -46,7 +46,7 @@ class GenerationJob(downloader: FileDownload) extends IngestionJob {
           } else {
             (1 to 12).map { month =>
               val monthFormatted = f"$month%02d"
-              val url = s"$link${year}_${monthFormatted}.parquet"
+              val url = s"$link$year$monthFormatted.parquet"
               logger.debug(s"Generated monthly URL: $url")
               url
             }
