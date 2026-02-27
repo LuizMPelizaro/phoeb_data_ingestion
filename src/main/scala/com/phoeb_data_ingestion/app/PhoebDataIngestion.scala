@@ -2,10 +2,9 @@ package com.phoeb_data_ingestion.app
 
 import com.phoeb_data_ingestion.ingestion.FileDownload
 import com.phoeb_data_ingestion.jobs._
-
 import sttp.client3.HttpURLConnectionBackend
 
-import scala.util.{Success, Failure}
+import scala.util.{Failure, Success}
 
 object PhoebDataIngestion {
 

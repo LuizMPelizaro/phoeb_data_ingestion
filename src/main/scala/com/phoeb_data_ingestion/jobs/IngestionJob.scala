@@ -1,7 +1,7 @@
 package com.phoeb_data_ingestion.jobs
 
-import scala.util.Try
 import java.nio.file.Path
+import scala.util.Try
 
 trait IngestionJob {
   def run(): Try[List[Path]]

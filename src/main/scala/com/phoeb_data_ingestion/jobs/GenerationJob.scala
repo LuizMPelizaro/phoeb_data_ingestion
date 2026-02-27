@@ -1,12 +1,12 @@
 package com.phoeb_data_ingestion.jobs
 
-import org.slf4j.LoggerFactory
 import com.phoeb_data_ingestion.app._
 import com.phoeb_data_ingestion.ingestion.FileDownload
 import io.github.cdimascio.dotenv.Dotenv
+import org.slf4j.LoggerFactory
 
-import scala.util.Try
 import java.nio.file.Path
+import scala.util.Try
 
 class GenerationJob(downloader: FileDownload) extends IngestionJob {
 

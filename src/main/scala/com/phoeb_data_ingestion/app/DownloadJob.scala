@@ -2,8 +2,8 @@ package com.phoeb_data_ingestion.app
 
 import com.phoeb_data_ingestion.ingestion.FileDownload
 
-import scala.util.Try
 import java.nio.file.Path
+import scala.util.Try
 
 class DownloadJob(downloader: FileDownload) {
 
