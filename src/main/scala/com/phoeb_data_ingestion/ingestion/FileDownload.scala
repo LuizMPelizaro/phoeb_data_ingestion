@@ -1,8 +1,9 @@
 package com.phoeb_data_ingestion.ingestion
 
-import scala.util.{Try, Success, Failure}
 import sttp.client3._
-import java.nio.file.{Files, Paths, Path}
+
+import java.nio.file.{Files, Path, Paths}
+import scala.util.{Failure, Try}
 
 
 class FileDownload(backend: SttpBackend[Identity, _]) {

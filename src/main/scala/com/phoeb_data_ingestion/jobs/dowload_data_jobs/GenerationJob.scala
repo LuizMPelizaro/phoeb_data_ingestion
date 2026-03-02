@@ -1,4 +1,4 @@
-package com.phoeb_data_ingestion.jobs
+package com.phoeb_data_ingestion.jobs.dowload_data_jobs
 
 import com.phoeb_data_ingestion.app._
 import com.phoeb_data_ingestion.ingestion.FileDownload
@@ -6,11 +6,12 @@ import io.github.cdimascio.dotenv.Dotenv
 import org.slf4j.LoggerFactory
 
 import java.nio.file.Path
+import java.time.LocalDate
 import scala.util.Try
 
 class GenerationJob(downloader: FileDownload) extends IngestionJob {
 
-  private val dotenv = Dotenv.configure().ignoreIfMissing().load()
+  private val dotenv = Dotenv.configure().load()
   private val logger = LoggerFactory.getLogger(getClass)
 
   def run(): Try[List[Path]] = {
@@ -28,8 +29,20 @@ class GenerationJob(downloader: FileDownload) extends IngestionJob {
             throw new IllegalArgumentException("LINK_GERACAO_USINA not set")
           }
 
-        val minYear = dotenv.get("MIN_YEAR", "2020").toInt
-        val maxYear = dotenv.get("MAX_YEAR", "2024").toInt
+        val minYear = dotenv.get("MIN_YEAR").toInt
+        val maxYearEnv = dotenv.get("MAX_YEAR").toInt
+
+        val today = LocalDate.now()
+        val currentYear = today.getYear
+        val currentMonth = today.getMonthValue
+
+        val maxYear =
+          if (maxYearEnv > currentYear) {
+            logger.warn(
+              s"MAX_YEAR ($maxYearEnv) is greater than current year ($currentYear). Adjusting."
+            )
+            currentYear
+          } else maxYearEnv
 
         logger.info(s"Download range defined: $minYear to $maxYear")
 
@@ -39,14 +52,23 @@ class GenerationJob(downloader: FileDownload) extends IngestionJob {
         }
 
         val urls = (minYear to maxYear).toList.flatMap { year =>
+
           if (year <= 2021) {
             val url = s"$link$year.parquet"
             logger.debug(s"Generated annual URL: $url")
             List(url)
+
           } else {
-            (1 to 12).map { month =>
+
+            val lastMonth =
+              if (year == currentYear) currentMonth
+              else 12
+
+            logger.info(s"Year $year will download months 1 to $lastMonth")
+
+            (1 to lastMonth).map { month =>
               val monthFormatted = f"$month%02d"
-              val url = s"$link$year$monthFormatted.parquet"
+              val url = s"$link${year}_$monthFormatted.parquet"
               logger.debug(s"Generated monthly URL: $url")
               url
             }
@@ -62,7 +84,9 @@ class GenerationJob(downloader: FileDownload) extends IngestionJob {
 
     result.fold(
       ex => logger.error("GenerationJob failed", ex),
-      paths => logger.info(s"GenerationJob finished successfully. Files downloaded: ${paths.size}")
+      paths => logger.info(
+        s"GenerationJob finished successfully. Files downloaded: ${paths.size}"
+      )
     )
 
     result
