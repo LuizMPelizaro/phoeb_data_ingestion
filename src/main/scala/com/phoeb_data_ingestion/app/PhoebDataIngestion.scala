@@ -3,7 +3,7 @@ package com.phoeb_data_ingestion.app
 import com.phoeb_data_ingestion.config.{SparkConfigLoader, SparkSessionFactory}
 import com.phoeb_data_ingestion.ingestion.FileDownload
 import com.phoeb_data_ingestion.jobs._
-import com.phoeb_data_ingestion.jobs.bronze.BronzeEnaSubSystemsJob
+import com.phoeb_data_ingestion.jobs.bronze.{BronzeEnaSubSystemsJob, BronzeGenerationJob}
 import com.phoeb_data_ingestion.jobs.dowload_data_jobs.{GenerationJob, LoadJob, SubSystemsENAJob}
 import com.phoeb_data_ingestion.metadata.TableBootstrap
 import com.phoeb_data_ingestion.metadata.BronzeTableBootstrap
@@ -36,18 +36,24 @@ object PhoebDataIngestion {
       val downloader = new FileDownload(backend)
       val dotenv = Dotenv.configure().ignoreIfMissing().load()
 
-      val bronzeInputPath = Option(dotenv.get("BRONZE_ENA_PATH"))
+      val bronzeEnaSubSystemsJob = Option(dotenv.get("BRONZE_ENA_PATH"))
         .getOrElse("data/raw/load")
 
-      val bronzeTableName = Option(dotenv.get("BRONZE_ENA_NAME"))
-        .getOrElse("curva_carga")
+      val bronzeEnaSubSystemsTableName = Option(dotenv.get("BRONZE_ENA_NAME"))
+        .getOrElse("ena_subsystem")
+
+      val bronzeGenerationJob = Option(dotenv.get("BRONZE_GENERATION_PATH"))
+        .getOrElse("data/raw/load")
+
+      val bronzeGenerationTableName = Option(dotenv.get("BRONZE_GENERATION_NAME"))
+        .getOrElse("generation")
 
       val runtimeArgs = args.toList
 
       val jobNames: List[String] =
         if (runtimeArgs.contains("--all")) {
           logger.info("Flag --all detected. Running all jobs.")
-          List("generation", "load", "subSystemEna", "bronze")
+          List("generation", "load", "subSystemEna", "bronze-ena","bronze-generation")
         } else {
           runtimeArgs
         }
@@ -79,15 +85,35 @@ object PhoebDataIngestion {
               case Success(_) =>
             }
 
-          case "bronze" =>
+          case "bronze-ena" =>
 
-            val bronzeJob = new BronzeEnaSubSystemsJob(
+            val bronzeEnaSubJobClass = new BronzeEnaSubSystemsJob(
               spark,
-              bronzeInputPath,
-              bronzeTableName
+              bronzeEnaSubSystemsJob,
+              bronzeEnaSubSystemsTableName
             )
 
-            bronzeJob.run() match {
+            bronzeEnaSubJobClass.run() match {
+              case Success(_) =>
+                logger.info(s"Job '$jobName' finished successfully.")
+
+              case Failure(ex) =>
+                hasFailure = true
+                logger.error(
+                  s"Job '$jobName' failed with error: ${ex.getMessage}",
+                  ex
+                )
+            }
+
+          case "bronze-generation" =>
+
+            val bronzeGenerationJobClass = new BronzeGenerationJob(
+              spark,
+              bronzeGenerationJob,
+              bronzeGenerationTableName
+            )
+
+            bronzeGenerationJobClass.run() match {
               case Success(_) =>
                 logger.info(s"Job '$jobName' finished successfully.")
 
