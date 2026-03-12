@@ -1,4 +1,4 @@
-package com.phoeb_data_ingestion.jobs.dowload_data_jobs
+package com.phoeb_data_ingestion.jobs
 
 import java.nio.file.Path
 import scala.util.Try

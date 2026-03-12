@@ -2,6 +2,7 @@ package com.phoeb_data_ingestion.jobs.dowload_data_jobs
 
 import com.phoeb_data_ingestion.app._
 import com.phoeb_data_ingestion.ingestion.FileDownload
+import com.phoeb_data_ingestion.jobs.IngestionJob
 import io.github.cdimascio.dotenv.Dotenv
 import org.slf4j.LoggerFactory
 
