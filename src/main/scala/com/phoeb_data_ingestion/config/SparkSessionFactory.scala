@@ -1,7 +1,7 @@
 package com.phoeb_data_ingestion.config
 
-import org.slf4j.LoggerFactory
 import org.apache.spark.sql.SparkSession
+import org.slf4j.LoggerFactory
 
 object SparkSessionFactory {
 

@@ -3,9 +3,8 @@ package com.phoeb_data_ingestion.jobs.bronze
 import com.phoeb_data_ingestion.jobs.SparkJob
 import com.phoeb_data_ingestion.metadata.{BronzeTableBootstrap, JobRunRepository, ProcessedFilesRepository}
 import com.phoeb_data_ingestion.service.FileTrackerService
-import com.phoeb_data_ingestion.utils.SchemaUtils
-import org.apache.spark.sql.{SparkSession, functions => F}
 import org.apache.spark.sql.connector.expressions.Expressions
+import org.apache.spark.sql.{SparkSession, functions => F}
 import org.slf4j.LoggerFactory
 
 import scala.util.{Failure, Success, Try}

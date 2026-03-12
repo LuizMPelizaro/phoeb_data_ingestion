@@ -1,6 +1,6 @@
 package com.phoeb_data_ingestion.metadata
 
-import org.apache.spark.sql.{SparkSession, functions => F}
+import org.apache.spark.sql.SparkSession
 import org.slf4j.LoggerFactory
 
 object TableBootstrap {

@@ -6,7 +6,6 @@ import com.phoeb_data_ingestion.jobs._
 import com.phoeb_data_ingestion.jobs.bronze.{BronzeEnaSubSystemsJob, BronzeGenerationJob, BronzeLoadJob}
 import com.phoeb_data_ingestion.jobs.dowload_data_jobs.{GenerationJob, LoadJob, SubSystemsENAJob}
 import com.phoeb_data_ingestion.metadata.TableBootstrap
-import com.phoeb_data_ingestion.metadata.BronzeTableBootstrap
 import io.github.cdimascio.dotenv.Dotenv
 import org.slf4j.LoggerFactory
 import sttp.client3.HttpURLConnectionBackend

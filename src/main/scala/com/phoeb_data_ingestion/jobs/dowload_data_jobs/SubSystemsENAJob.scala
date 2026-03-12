@@ -6,9 +6,9 @@ import com.phoeb_data_ingestion.jobs.IngestionJob
 import io.github.cdimascio.dotenv.Dotenv
 import org.slf4j.LoggerFactory
 
+import java.nio.file.Path
 import java.time.LocalDate
 import scala.util.Try
-import java.nio.file.Path
 
 class SubSystemsENAJob(downloader: FileDownload) extends  IngestionJob {
 

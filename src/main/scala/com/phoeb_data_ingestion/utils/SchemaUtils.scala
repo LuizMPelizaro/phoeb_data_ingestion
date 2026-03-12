@@ -1,7 +1,7 @@
 package com.phoeb_data_ingestion.utils
 
-import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions.col
+import org.apache.spark.sql.{DataFrame, SparkSession}
 
 object SchemaUtils {
 
