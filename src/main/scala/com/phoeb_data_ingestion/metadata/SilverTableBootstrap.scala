@@ -28,4 +28,22 @@ object SilverTableBootstrap {
 
     logger.info("Table silver.enaSubsystem created successfully.")
   }
+
+  def ensuringLoadTable(spark: SparkSession): Unit = {
+    logger.info("Creating table silver.Load")
+
+    spark.sql(
+      """
+        |CREATE TABLE IF NOT EXISTS local.silver.load(
+        |id_subsistema STRING,
+        |nom_subsistema STRING,
+        |din_instante TIMESTAMP,
+        |val_cargaenergiahomwmed DOUBLE
+        |)
+        |USING iceberg
+        |PARTITIONED BY (id_subsistema, months(din_instante))
+        |""".stripMargin
+    )
+    logger.info("Table silver.load created successfully.")
+  }
 }

@@ -5,7 +5,7 @@ import com.phoeb_data_ingestion.ingestion.FileDownload
 import com.phoeb_data_ingestion.jobs._
 import com.phoeb_data_ingestion.jobs.bronze.{BronzeEnaSubSystemsJob, BronzeGenerationJob, BronzeLoadJob}
 import com.phoeb_data_ingestion.jobs.dowload_data_jobs.{GenerationJob, LoadJob, SubSystemsENAJob}
-import com.phoeb_data_ingestion.jobs.silver.SilverEnaSubSystemsJob
+import com.phoeb_data_ingestion.jobs.silver.{SilverEnaSubSystemsJob, SilverLoadJob}
 import com.phoeb_data_ingestion.metadata.TableBootstrap
 import io.github.cdimascio.dotenv.Dotenv
 import org.slf4j.LoggerFactory
@@ -57,12 +57,15 @@ object PhoebDataIngestion {
       val silverEnaSubSystemsName = Option(dotenv.get("SILVER_ENA_NAME"))
         .getOrElse("ena_subsystems")
 
+      val silverLoadName = Option(dotenv.get("SILVER_LOAD_NAME"))
+        .getOrElse("load")
+
       val runtimeArgs = args.toList
 
       val jobNames: List[String] =
         if (runtimeArgs.contains("--all")) {
           logger.info("Flag --all detected. Running all jobs.")
-          List("generation", "load", "subSystemEna", "bronze-ena", "bronze-generation", "bronze-load", "silver-ena")
+          List("generation", "load", "subSystemEna", "bronze-ena", "bronze-generation", "bronze-load", "silver-ena", "silver-load")
         } else {
           runtimeArgs
         }
@@ -162,6 +165,24 @@ object PhoebDataIngestion {
             )
 
             silverEnaJobClass.run() match {
+              case Success(_) =>
+                logger.info(s"Job '$jobName' finished successfully.'")
+
+              case Failure(ex) =>
+                hasFailure = true
+                logger.error(
+                  s"Job '$jobName' failed with error: ${ex.getMessage}'"
+                )
+            }
+
+          case "silver-load" =>
+
+            val siverLoadClass = new SilverLoadJob(
+              spark,
+              silverLoadName
+            )
+
+            siverLoadClass.run() match {
               case Success(_) =>
                 logger.info(s"Job '$jobName' finished successfully.'")
 

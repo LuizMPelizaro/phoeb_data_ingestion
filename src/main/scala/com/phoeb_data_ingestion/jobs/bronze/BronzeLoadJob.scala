@@ -49,23 +49,20 @@ class BronzeLoadJob(
 
       logger.info(s"Found ${newFiles.size} new files to process.")
 
-      val rawDf = spark.read
-        .option("mergeSchema", "false")
-        .parquet(newFiles: _*)
-        .withColumn(
-          "val_cargaenergiahomwmed",
-          F.col("val_cargaenergiahomwmed").cast("string")
-        )
+      val dfs = newFiles.map { file =>
+        spark.read
+          .parquet(file)
+          .withColumn(
+            "val_cargaenergiahomwmed",
+            F.col("val_cargaenergiahomwmed").cast("string")
+          )
+      }
+
+      val rawDf = dfs.reduce(_ unionByName _)
 
       val enrichedDf = rawDf
         .withColumn("ingestion_timestamp", F.current_timestamp())
         .withColumn("source_file", F.input_file_name())
-
-//      val alignedDf = SchemaUtils.alignToTableSchema(
-//        spark,
-//        enrichedDf,
-//        s"local.bronze.$tableName"
-//      )
 
       enrichedDf.writeTo(s"local.bronze.$tableName").append()
 
