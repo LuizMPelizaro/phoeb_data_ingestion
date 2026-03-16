@@ -46,4 +46,30 @@ object SilverTableBootstrap {
     )
     logger.info("Table silver.load created successfully.")
   }
+
+  def ensuringGenerateTable(spark: SparkSession): Unit = {
+    logger.info("Creating table silver.generate")
+
+    spark.sql(
+      """
+        |CREATE TABLE IF NOT EXISTS local.silver.generate(
+        |din_instante TIMESTAMP,
+        |id_subsistema STRING,
+        |nom_subsistema  STRING,
+        |id_estado STRING,
+        |nom_estado STRING,
+        |cod_modalidadeoperacao STRING,
+        |nom_tipousina STRING,
+        |nom_tipocombustivel STRING,
+        |nom_usina STRING,
+        |id_ons STRING,
+        |ceg STRING,
+        |val_geracao DOUBLE
+        |)
+        |USING iceberg
+        |PARTITIONED BY (id_subsistema,id_estado, months(din_instante))
+        |""".stripMargin
+    )
+    logger.info("Table silver.generate created successfully.")
+  }
 }
