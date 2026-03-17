@@ -27,8 +27,8 @@ object SparkConfigLoader {
 
       "spark.serializer" -> "org.apache.spark.serializer.KryoSerializer",
 
-      "spark.driver.memory" -> "8g",
-      "spark.executor.memory" -> "8g",
+      "spark.driver.memory" -> "10g",
+      "spark.executor.memory" -> "12g",
       "spark.sql.shuffle.partitions" -> "50",
       "spark.sql.files.maxPartitionBytes" -> "134217728",
 

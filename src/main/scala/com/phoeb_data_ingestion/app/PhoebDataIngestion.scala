@@ -5,6 +5,7 @@ import com.phoeb_data_ingestion.ingestion.FileDownload
 import com.phoeb_data_ingestion.jobs._
 import com.phoeb_data_ingestion.jobs.bronze.{BronzeEnaSubSystemsJob, BronzeGenerationJob, BronzeLoadJob}
 import com.phoeb_data_ingestion.jobs.dowload_data_jobs.{GenerationJob, LoadJob, SubSystemsENAJob}
+import com.phoeb_data_ingestion.jobs.silver.{SilverEnaSubSystemsJob, SilverGenerateJob, SilverLoadJob}
 import com.phoeb_data_ingestion.metadata.TableBootstrap
 import io.github.cdimascio.dotenv.Dotenv
 import org.slf4j.LoggerFactory
@@ -53,12 +54,21 @@ object PhoebDataIngestion {
       val bronzeLoadJobTableName = Option(dotenv.get("BRONZE_LOAD_NAME"))
         .getOrElse("load")
 
+      val silverEnaSubSystemsName = Option(dotenv.get("SILVER_ENA_NAME"))
+        .getOrElse("ena_subsystems")
+
+      val silverLoadName = Option(dotenv.get("SILVER_LOAD_NAME"))
+        .getOrElse("load")
+
+      val silverGenerateName = Option(dotenv.get("SILVER_GENERATION_NAME"))
+        .getOrElse("generation")
+
       val runtimeArgs = args.toList
 
       val jobNames: List[String] =
         if (runtimeArgs.contains("--all")) {
           logger.info("Flag --all detected. Running all jobs.")
-          List("generation", "load", "subSystemEna", "bronze-ena","bronze-generation","bronze-load")
+          List("generation", "load", "subSystemEna", "bronze-ena", "bronze-generation", "bronze-load", "silver-ena", "silver-load", "silver-generate")
         } else {
           runtimeArgs
         }
@@ -147,6 +157,60 @@ object PhoebDataIngestion {
                 logger.error(
                   s"Job '$jobName' failed with error: ${ex.getMessage}",
                   ex
+                )
+            }
+
+          case "silver-ena" =>
+
+            val silverEnaJobClass = new SilverEnaSubSystemsJob(
+              spark,
+              silverEnaSubSystemsName
+            )
+
+            silverEnaJobClass.run() match {
+              case Success(_) =>
+                logger.info(s"Job '$jobName' finished successfully.'")
+
+              case Failure(ex) =>
+                hasFailure = true
+                logger.error(
+                  s"Job '$jobName' failed with error: ${ex.getMessage}'"
+                )
+            }
+
+          case "silver-load" =>
+
+            val silverLoadClass = new SilverLoadJob(
+              spark,
+              silverLoadName
+            )
+
+            silverLoadClass.run() match {
+              case Success(_) =>
+                logger.info(s"Job '$jobName' finished successfully.'")
+
+              case Failure(ex) =>
+                hasFailure = true
+                logger.error(
+                  s"Job '$jobName' failed with error: ${ex.getMessage}'"
+                )
+            }
+
+          case "silver-generate" =>
+
+            val silverGenerationClass = new SilverGenerateJob(
+              spark,
+              silverGenerateName
+            )
+
+            silverGenerationClass.run() match {
+              case Success(_) =>
+                logger.info(s"Job '$jobName' finished successfully.'")
+
+              case Failure(ex) =>
+                hasFailure = true
+                logger.error(
+                  s"Job '$jobName' failed with error: ${ex.getMessage}'"
                 )
             }
 
